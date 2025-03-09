@@ -1,8 +1,10 @@
 project('v5rt', 'c')
 
-cc = meson.get_compiler('c')
-v5rt_dep = declare_dependency(
-  dependencies : cc.find_library('v5rt', dirs : meson.current_source_dir()),
-  include_directories : include_directories('include'))
+inc = include_directories('include')
+v5rt = shared_library('simple',
+  'simple.c',
+  include_directories : inc,
+  install : true)
 
-meson.override_dependency('v5rt', v5rt_dep)
+v5rt_dep = declare_dependency(include_directories : inc,
+  link_with : v5rt)

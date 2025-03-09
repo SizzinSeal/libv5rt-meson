@@ -1,3 +1,4 @@
 builddir/
 libv5rt.a
 include/
+.vscode/

@@ -4,6 +4,7 @@ import sys
 import os
 import zipfile
 import hashlib
+import re
 
 def download_zip(file_name):
     # Construct the URL using the version passed (in its original format).
@@ -47,11 +48,9 @@ def extract_zip(zip_path):
     dir_name = os.path.splitext(zip_basename)[0]
 
     try:
-        
         # Extract the zip file
         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
             zip_ref.extractall()
-        
         print(f"{zip_path} successfully extracted")
         return True
 
@@ -72,6 +71,7 @@ def calculate_sha256(filename):
                     break
                 sha256.update(chunk)
             return sha256.hexdigest()
+
     except FileNotFoundError:
         print(f"Error: The file '{filename}' does not exist.")
         return None
@@ -82,6 +82,47 @@ def calculate_sha256(filename):
         print(f"An unexpected error occurred: {str(e)}")
         return None
 
+def patch_header(input_file, output_file):
+    # Read the input file
+    with open(input_file, 'r') as f:
+        content = f.read()
+    
+    # Regular expression to find function declarations/definitions
+    # This regex looks for closing parenthesis of function parameters followed by attributes and termination
+    pattern = re.compile(
+        r'\)(\s*)((?:__attribute__\s*\(\([^)]*\)\)\s*)*)(\s*)(;|\{)',
+        re.DOTALL
+    )
+    
+    def replacer(match):
+        whitespace_after_paren = match.group(1)
+        existing_attrs = match.group(2)
+        whitespace_after_attrs = match.group(3)
+        ending = match.group(4)
+        
+        # Check if 'pcs("aapcs")' is already present
+        if 'pcs("aapcs")' in existing_attrs:
+            return match.group(0)
+        
+        new_attr = ' __attribute__((pcs("aapcs")))'
+        new_part = f'){whitespace_after_paren}{new_attr}'
+        
+        # Add existing attributes if present
+        if existing_attrs:
+            new_part += f' {existing_attrs}'
+        
+        # Add remaining whitespace and ending
+        new_part += f'{whitespace_after_attrs}{ending}'
+        
+        return new_part
+    
+    # Substitute all occurrences
+    modified_content = pattern.sub(replacer, content)
+    
+    # Write the output file
+    with open(output_file, 'w') as f:
+        f.write(modified_content)
+
 
 def main():
     # Check minimum arguments (version + hash)
@@ -90,17 +131,20 @@ def main():
         print(f"Usage: {sys.argv[0]} version_str hash_str [filename1 filename2 ...]")
         sys.exit(1)
 
-    # Parse arguments
+    # get version and hash
     version = sys.argv[1]
     hash = sys.argv[2]
     filenames = sys.argv[3:]
+    path_prefix = os.path.join(version, "vexv5")
+
+    # get files
     headers = [] # list of headers to keep
     object_files = [] # list of object files to keep
     for filename in filenames:
         if filename.endswith('.c.obj'):
             object_files.append(filename)
         elif filename.endswith('.h'):
-            headers.append(filename)
+            headers.append(os.path.join(path_prefix, 'include', filename))
     
     # download the zip
     zip = download_zip(version)
@@ -117,7 +161,14 @@ def main():
     if extract_zip(zip) == False:
         sys.exit(1)
     
-    
+    # patch headers
+    try:
+        os.makedirs(name="include", exist_ok=True)
+    except:
+        print("failed to path header files: could not create include directory")
+        sys.exit(1)
+    for header in headers:
+        patch_header(header, os.path.join("include", os.path.basename(header)))
 
 
 if __name__ == "__main__":

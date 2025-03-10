@@ -23,11 +23,9 @@ keep_objects = [
 
 python = find_program('python3')
 
-gen_libv5rt = custom_target(
-  'gen-v5rt',
+custom_target(
+  'v5',
   input: 'get-libv5rt.py',
   output: keep_files,
   command: [python, '@INPUT@', version, hash, keep_files, keep_objects]
 )
-
-static_library('v5', gen_libv5rt)

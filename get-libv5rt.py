@@ -124,6 +124,13 @@ def patch_header(input_file, output_file):
     # Write the output file
     with open(output_file, 'w') as f:
         f.write(modified_content)
+    try:
+        os.makedirs(name='include', exist_ok=True);
+    except:
+        print("failed parsing headers")
+        sys.exit(1)
+    with open(os.path.join("include", output_file), 'w') as f:
+        f.write(modified_content)
 
 
 def patch_lib(lib, keep):

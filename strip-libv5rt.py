@@ -20,6 +20,7 @@ def main():
         sys.exit(1)
     
     input_file, output_dir = remaining
+    input_file = os.path.join("..", output_dir, input_file)
     symbols = args.symbols
     sections = args.sections
 
@@ -34,7 +35,7 @@ def main():
     input_basename = os.path.basename(input_file)
     stem, ext = os.path.splitext(input_basename)
     output_filename = f"{stem}-stripped{ext}"
-    output_path = os.path.join(output_dir, output_filename)
+    output_path = os.path.join("..", output_dir, output_filename)
 
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_archive = os.path.join(temp_dir, os.path.basename(input_file))
@@ -59,7 +60,7 @@ def main():
             try:
                 with open(member_path, 'rb') as f:
                     if f.read(4) == b'\x7fELF':
-                        cmd = ['objcopy']
+                        cmd = ['arm-none-eabi-objcopy']
                         cmd += [arg for symbol in symbols for arg in ('--strip-symbol', symbol)]
                         cmd += [arg for section in sections for arg in ('--remove-section', section)]
                         cmd.append(member_path)

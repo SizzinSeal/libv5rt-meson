@@ -23,9 +23,11 @@ keep_objects = [
 
 python = find_program('python3')
 
-custom_target(
-  'v5',
+get_v5 = custom_target(
+  'get-v5',
   input: 'get-libv5rt.py',
   output: keep_files,
   command: [python, '@INPUT@', version, hash, keep_files, keep_objects]
 )
+
+static_library('v5', get_v5)

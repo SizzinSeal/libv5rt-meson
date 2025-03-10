@@ -53,7 +53,7 @@ def main():
         try:
             patch_header(os.path.join("libv5rt", "vexv5", "include", os.path.basename(file)))
         except:
-            print(f"failed patching {file}!")
+            print(f"failed patching {os.path.join("libv5rt", "vexv5", "include", os.path.basename(file))}!")
             sys.exit(1)
     
     # we're done

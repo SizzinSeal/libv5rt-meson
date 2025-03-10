@@ -43,6 +43,10 @@ def patch_header(input_file, output_file):
     with open(output_file, 'w') as f:
         f.write(modified_content)
 
+def append_patched_to_filename(file_path: str) -> str:
+    base, ext = os.path.splitext(file_path)
+    return f"{base}_patched{ext}"
+
 def main():
     # get headers to patch
     files = sys.argv[3:]
@@ -50,11 +54,9 @@ def main():
     # patch headers
     print("patching headers")
     for file in files:
-        try:
-            patch_header(os.path.join("libv5rt", "vexv5", "include", os.path.basename(file)))
-        except:
-            print(f"failed patching {os.path.join("libv5rt", "vexv5", "include", os.path.basename(file))}!")
-            sys.exit(1)
+        name = os.path.join("libv5rt", "vexv5", "include", os.path.basename(file))
+        new_name = os.path.basename(append_patched_to_filename(name))
+        patch_header(name, new_name)
     
     # we're done
     sys.exit(0)

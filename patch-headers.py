@@ -68,7 +68,7 @@ def main():
     # patch headers
     print("patching headers")
     for file in files:
-        name = os.path.join("libv5rt", "vexv5", "include", os.path.basename(file))
+        name = os.path.join("..", out_dir, os.path.basename(file))
         new_name = os.path.join(out_dir, os.path.basename(append_patched_to_filename(name)))
         patch_header(name, new_name)
     

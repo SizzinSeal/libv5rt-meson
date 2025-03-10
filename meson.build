@@ -30,14 +30,14 @@ libv5rt = custom_target(
 
 patch_headers = custom_target(
   'patch-headers',
-  input: libv5rt,
+  input: ['patch-headers.py', libv5rt],
   output: [
     'v5_api_patched.h',
     'v5_apitypes_patched.h',
     'v5_apiuser_patched.h',
     'v5_color_patched.h',
   ],
-  command: [python, 'patch-headers.py', '@INPUT@']
+  command: [python, '@INPUT0@', '@INPUT@']
 )
 
 patch_libv5rt = custom_target(

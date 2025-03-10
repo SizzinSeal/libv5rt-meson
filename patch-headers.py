@@ -45,7 +45,7 @@ def patch_header(input_file, output_file):
 
 def main():
     # get headers to patch
-    files = sys.argv[2:]
+    files = sys.argv[3:]
 
     # patch headers
     print("patching headers")

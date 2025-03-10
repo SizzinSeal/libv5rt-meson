@@ -83,6 +83,7 @@ def extract_zip(zip_path, keep_files, out_dir):
             
             # Copy each specified file from either vexv5 or include directories
             for file_name in keep_files:
+                file_name = os.path.basename(file_name)
                 found = False
                 # Check in the vexv5 directory
                 src_path = os.path.join(vexv5_dir, file_name)

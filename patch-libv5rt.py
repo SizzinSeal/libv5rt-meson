@@ -4,7 +4,7 @@ import subprocess
 import tempfile
 
 def strip_object_files(keep, out_dir):
-    lib = os.path.join("libv5rt", "vexv5", "libv5rt.a")
+    lib = os.path.join("..", out_dir, "libv5rt.a")
     ar = 'arm-none-eabi-ar'
 
     def list_objects(library):

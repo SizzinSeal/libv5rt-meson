@@ -146,7 +146,7 @@ def main():
         sys.exit(1)
 
     # extract the zip
-    if extract_zip(zip) == False:
+    if extract_zip(zip, keep_files, out_dir) == False:
         sys.exit(1)
     
     # we're done

@@ -3,7 +3,7 @@ project('v5rt', 'c',
     default_options: ['warning_level=3'])
 
 version = 'V5_20240802_15_00_00'
-hash = '51FC8695402DD39D5713D20BDA5D23699E85913D595E47CD550112EC290730A2'
+hash = '51fc8695402dd39d5713d20bda5d23699e85913d595e47cd550112ec290730a2'
 
 keep_files = [
   'libv5rt.a',
@@ -25,7 +25,7 @@ keep_objects = [
 python = find_program('python3')
 
 custom_target(
-  'get-libv5rt.py',
+  'v5rt',
   input: 'get-libv5rt.py',
   output: keep_files,
   install: true,

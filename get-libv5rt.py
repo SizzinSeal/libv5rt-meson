@@ -27,6 +27,7 @@ def download_zip(file_name):
                         break
                     out_file.write(chunk)
     except urllib.error.URLError:
+        print(f"failed downloading libv5rt")
         return None
 
     return zip_filename
@@ -44,17 +45,14 @@ def extract_zip(zip_path):
     # Create extraction directory name based on zip filename
     zip_basename = os.path.basename(zip_path)
     dir_name = os.path.splitext(zip_basename)[0]
-    extract_dir = os.path.join(script_dir, dir_name)
 
     try:
-        # Create extraction directory if it doesn't exist
-        os.makedirs(extract_dir, exist_ok=True)
         
         # Extract the zip file
         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-            zip_ref.extractall(extract_dir)
+            zip_ref.extractall()
         
-        print(f"Successfully extracted to: {extract_dir}")
+        print(f"{zip_path} successfully extracted")
         return True
 
     except zipfile.BadZipFile:
@@ -93,32 +91,33 @@ def main():
         sys.exit(1)
 
     # Parse arguments
-    version_str = sys.argv[1]
-    hash_str = sys.argv[2]
+    version = sys.argv[1]
+    hash = sys.argv[2]
     filenames = sys.argv[3:]
-
-    listA = []
-    listB = []
-    listC = []
-    
+    headers = [] # list of headers to keep
+    object_files = [] # list of object files to keep
     for filename in filenames:
         if filename.endswith('.c.obj'):
-            listC.append(filename)
-        elif filename.endswith('.a'):
-            listA.append(filename)
+            object_files.append(filename)
         elif filename.endswith('.h'):
-            listB.append(filename)
+            headers.append(filename)
     
-    print("listA =", listA)
-    print("listB =", listB)
-    print("listC =", listC)
+    # download the zip
+    zip = download_zip(version)
+    if zip == None:
+        sys.exit(1)
+    
+    # check the hash
+    if calculate_sha256(zip) != hash:
+        os.remove(zip)
+        print(f"hashes don't match! try again!")
+        sys.exit(1)
 
-    # Display results (replace this with your actual logic)
-    print(f"Version: {version_str}")
-    print(f"Hash: {hash_str}")
-    print(f"Number of files: {len(filenames)}")
-    for i, filename in enumerate(filenames, 1):
-        print(f"File {i}: {filename}")
+    # extract the zip
+    if extract_zip(zip) == False:
+        sys.exit(1)
+    
+    
 
 
 if __name__ == "__main__":

@@ -67,7 +67,7 @@ def main():
     # get files
     files = sys.argv[1:-1]
     # get output directory
-    out_dir = os.path.abspath(sys.argv[-1])
+    out_dir = sys.argv[-1]
 
     # create library
     strip_object_files(files, out_dir)

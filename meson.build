@@ -25,7 +25,7 @@ libv5rt = custom_target(
     'v5_apiuser.h',
     'v5_color.h'
   ],
-  command: [python, '@INPUT@', version, hash]
+  command: [python, '@INPUT@', version, hash, '@OUTPUT@', '@OUTDIR@']
 )
 
 patch_headers = custom_target(
@@ -37,7 +37,7 @@ patch_headers = custom_target(
     'v5_apiuser_patched.h',
     'v5_color_patched.h',
   ],
-  command: [python, '@INPUT0@', '@INPUT@']
+  command: [python, '@INPUT0@', '@INPUT@', '@OUTDIR@']
 )
 
 patch_libv5rt = custom_target(
@@ -47,9 +47,9 @@ patch_libv5rt = custom_target(
   ],
   output: 'libv5.a',
   depends: libv5rt,
-  command: [python, '@INPUT@', keep_object_files]
+  command: [python, '@INPUT@', keep_object_files, '@OUTDIR@']
 )
 
 v5_dep = declare_dependency(
-  sources: [patch_libv5rt, patch_headers]
+  sources: [patch_headers, patch_libv5rt]
 )

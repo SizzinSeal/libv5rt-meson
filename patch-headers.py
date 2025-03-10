@@ -61,13 +61,15 @@ def append_patched_to_filename(file_path: str) -> str:
 
 def main():
     # get headers to patch
-    files = sys.argv[3:]
+    files = sys.argv[3:-1]
+    # get output directory
+    out_dir = sys.argv[-1]
 
     # patch headers
     print("patching headers")
     for file in files:
         name = os.path.join("libv5rt", "vexv5", "include", os.path.basename(file))
-        new_name = os.path.basename(append_patched_to_filename(name))
+        new_name = os.path.join(out_dir, os.path.basename(append_patched_to_filename(name)))
         patch_header(name, new_name)
     
     # we're done

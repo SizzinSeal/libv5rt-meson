@@ -57,38 +57,12 @@ def calculate_sha256(filename):
         print(f"An unexpected error occurred: {str(e)}")
         return None
 
+import os
+import shutil
+import tempfile
+import zipfile
 
-def copy_all_items(source_dir, target_dir):
-    # Check if the source directory exists
-    if not os.path.exists(source_dir):
-        print(f"Source directory '{source_dir}' does not exist.")
-        sys.exit(1)
-    
-    # Create the target directory if it doesn't exist
-    os.makedirs(target_dir, exist_ok=True)
-    
-    # Iterate over each item in the source directory
-    for item in os.listdir(source_dir):
-        source_path = os.path.join(source_dir, item)
-        target_path = os.path.join(target_dir, item)
-        
-        try:
-            # If the item is a directory, use copytree (with dirs_exist_ok to allow merging)
-            if os.path.isdir(source_path):
-                shutil.copytree(source_path, target_path, dirs_exist_ok=True)
-                print(f"Copied directory: {source_path} -> {target_path}")
-            # If it's a file, use copy2 to preserve metadata
-            elif os.path.isfile(source_path):
-                shutil.copy2(source_path, target_path)
-                print(f"Copied file: {source_path} -> {target_path}")
-            else:
-                print(f"Skipped non-file/directory: {source_path}")
-        except Exception as e:
-            print(f"Error copying {source_path} to {target_path}: {e}")
-            sys.exit(1)
-
-
-def extract_zip(zip_path):
+def extract_zip(zip_path, keep_files, out_dir):
     # Check if the zip file exists
     if not os.path.exists(zip_path):
         print(f"Error: The file '{zip_path}' does not exist.")
@@ -99,12 +73,41 @@ def extract_zip(zip_path):
             # Extract the zip file
             with zipfile.ZipFile(zip_path, 'r') as zip_ref:
                 zip_ref.extractall(path=tmpdir)
-            # create a new extraction dir with a consistent name
-            new_dir = os.path.relpath('libv5rt')
-            os.makedirs(new_dir, exist_ok=True)
+            
             extraction_dir = os.path.splitext(os.path.basename(zip_path))[0]
-            copy_all_items(os.path.join(tmpdir, extraction_dir), new_dir)
-            print(f"libv5rt successfully extracted")
+            vexv5_dir = os.path.join(tmpdir, extraction_dir, "vexv5")
+            include_dir = os.path.join(vexv5_dir, "include")
+            
+            # Ensure the output directory exists
+            os.makedirs(out_dir, exist_ok=True)
+            
+            # Copy each specified file from either vexv5 or include directories
+            for file_name in keep_files:
+                found = False
+                # Check in the vexv5 directory
+                src_path = os.path.join(vexv5_dir, file_name)
+                if os.path.exists(src_path):
+                    dst_path = os.path.join(out_dir, file_name)
+                    if os.path.isfile(src_path):
+                        shutil.copy(src_path, dst_path)
+                    else:
+                        shutil.copytree(src_path, dst_path, dirs_exist_ok=True)
+                    found = True
+                else:
+                    # Check in the include directory
+                    src_path = os.path.join(include_dir, file_name)
+                    if os.path.exists(src_path):
+                        dst_path = os.path.join(out_dir, file_name)
+                        if os.path.isfile(src_path):
+                            shutil.copy(src_path, dst_path)
+                        else:
+                            shutil.copytree(src_path, dst_path, dirs_exist_ok=True)
+                        found = True
+                if not found:
+                    print(f"Error: File '{file_name}' not found in the extracted contents.")
+                    return False
+            
+            print("libv5rt successfully extracted")
             return True
 
     except zipfile.BadZipFile:
@@ -125,6 +128,11 @@ def main():
     # get version and hash
     version = sys.argv[1]
     hash = sys.argv[2]
+
+    # get files that need to be kept
+    keep_files = sys.argv[3:-1]
+    # get output directory
+    out_dir = sys.argv[-1]
     
     # download the zip
     zip = download_zip(version)

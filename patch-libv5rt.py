@@ -3,7 +3,7 @@ import os
 import subprocess
 import tempfile
 
-def strip_object_files(keep):
+def strip_object_files(keep, out_dir):
     lib = os.path.join("libv5rt", "vexv5", "libv5rt.a")
     ar = 'arm-none-eabi-ar'
 
@@ -59,16 +59,18 @@ def strip_object_files(keep):
     with tempfile.TemporaryDirectory() as tmpdir:
         print(f"Extracting objects to temporary directory: {tmpdir}")
         extract_objects(lib, objects_to_extract, tmpdir)
-        new_lib_path = os.path.relpath('libv5.a')
+        new_lib_path = os.path.join(out_dir, "libv5.a")
         print(f"Creating new library: {new_lib_path}")
         create_new_library(new_lib_path, objects_to_extract, tmpdir)
 
 def main():
-    # get compiler tools to use
-    files = sys.argv[1:]
+    # get files
+    files = sys.argv[1:-1]
+    # get output directory
+    out_dir = os.path.abspath(sys.argv[-1])
 
     # create library
-    strip_object_files(files)
+    strip_object_files(files, out_dir)
     
     # we're done
     sys.exit(0)

@@ -14,7 +14,6 @@ keep_files = [
 ]
 
 keep_objects = [
-  'v5_fstubs.c.obj',
   'v5_util.c.obj',
   'v5_apijump.c.obj',
   'v5_apiuser.c.obj',

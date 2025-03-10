@@ -5,6 +5,11 @@ import os
 import zipfile
 import hashlib
 import re
+import subprocess
+import subprocess
+import sys
+import os
+import tempfile
 
 def download_zip(file_name):
     # Construct the URL using the version passed (in its original format).
@@ -124,6 +129,70 @@ def patch_header(input_file, output_file):
         f.write(modified_content)
 
 
+def patch_lib(lib, keep):
+    def list_objects(library):
+        """Return a list of object files in the static library using 'ar t'."""
+        try:
+            output = subprocess.check_output(["arm-none-eabi-ar", "t", library], universal_newlines=True)
+        except subprocess.CalledProcessError as e:
+            print(f"Error listing objects in {library}: {e}")
+            sys.exit(1)
+        return output.splitlines()
+
+    def extract_objects(library, objects, extract_dir):
+        """Extract specified objects from the library into extract_dir."""
+        abs_library = os.path.abspath(library)  # Compute the absolute path BEFORE changing directory
+        orig_dir = os.getcwd()
+        os.chdir(extract_dir)
+        try:
+            for obj in objects:
+                try:
+                    subprocess.check_call(["arm-none-eabi-ar", "x", abs_library, obj])
+                except subprocess.CalledProcessError as e:
+                    print(f"Error extracting object {obj} from {library}: {e}")
+                    sys.exit(1)
+        finally:
+            os.chdir(orig_dir)
+
+    def create_new_library(output_library, object_files, working_dir):
+        """Create a new static library with the given object files."""
+        files = [os.path.join(working_dir, obj) for obj in object_files]
+        try:
+            subprocess.check_call(["arm-none-eabi-ar", "rcs", output_library] + files)
+        except subprocess.CalledProcessError as e:
+            print(f"Error creating new library {output_library}: {e}")
+            sys.exit(1)
+
+    if not os.path.isfile(lib):
+        print(f"Library file {lib} does not exist.")
+        sys.exit(1)
+
+    all_objects = list_objects(lib)
+    if not all_objects:
+        print("No object files found in the library.")
+        sys.exit(1)
+
+    # Identify the objects from the preserve list that are actually in the library.
+    objects_to_extract = [obj for obj in keep if obj in all_objects]
+    if not objects_to_extract:
+        print("None of the specified object files were found in the library.")
+        sys.exit(1)
+
+    print(f"Objects to extract from {lib}:")
+    for obj in objects_to_extract:
+        print(f"  - {obj}")
+
+    # Use a temporary directory to extract objects.
+    with tempfile.TemporaryDirectory() as tmpdir:
+        print(f"Extracting objects to temporary directory: {tmpdir}")
+        extract_objects(lib, objects_to_extract, tmpdir)
+        new_lib_path = os.path.relpath('libv5rt.a')
+        print(f"Creating new library: {new_lib_path}")
+        create_new_library(new_lib_path, objects_to_extract, tmpdir)
+
+    print("New library creation complete.")
+
+
 def main():
     # Check minimum arguments (version + hash)
     if len(sys.argv) < 3:
@@ -169,6 +238,9 @@ def main():
         sys.exit(1)
     for header in headers:
         patch_header(header, os.path.join("include", os.path.basename(header)))
+    
+    # patch library
+    patch_lib(os.path.join(path_prefix, 'libv5rt.a'), object_files)
 
 
 if __name__ == "__main__":

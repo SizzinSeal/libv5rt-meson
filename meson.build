@@ -40,13 +40,32 @@ patch_headers = custom_target(
   command: [python, '@INPUT0@', '@INPUT@', '@OUTDIR@']
 )
 
+strip_options = [
+  '-N open',
+  '-N _fstat',
+  '-N fcntl',
+  '-N lseek',
+  '-N read',
+  '-N write',
+  '-N isatty',
+  '-R .ARM.attributes',
+]
+
+strip_libv5rt = custom_target(
+  'strip-libv5rt',
+  input: 'strip-libv5rt.py',
+  output: 'libv5rt-stripped.a',
+  depends: libv5rt,
+  command: [python, '@INPUT', strip_options, 'libv5rt.a', '@OUTDIR@']
+)
+
 patch_libv5rt = custom_target(
   'patch-libv5rt',
   input: [
     'patch-libv5rt.py',
   ],
   output: 'libv5.a',
-  depends: libv5rt,
+  depends: strip_libv5rt,
   command: [python, '@INPUT@', keep_object_files, '@OUTDIR@']
 )
 

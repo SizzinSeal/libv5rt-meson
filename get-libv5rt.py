@@ -154,6 +154,16 @@ def patch_lib(lib, keep):
         finally:
             os.chdir(orig_dir)
 
+    def strip_arm_attributes(working_dir, object_files):
+        """Strip the .ARM.attributes section from each extracted object file."""
+        for obj in object_files:
+            obj_path = os.path.join(working_dir, obj)
+            try:
+                subprocess.check_call(["arm-none-eabi-objcopy", "--remove-section=.ARM.attributes", obj_path])
+            except subprocess.CalledProcessError as e:
+                print(f"Error stripping .ARM.attributes from {obj}: {e}")
+                sys.exit(1)
+
     def create_new_library(output_library, object_files, working_dir):
         """Create a new static library with the given object files."""
         files = [os.path.join(working_dir, obj) for obj in object_files]
@@ -172,21 +182,21 @@ def patch_lib(lib, keep):
         print("No object files found in the library.")
         sys.exit(1)
 
-    # Identify the objects from the preserve list that are actually in the library.
+    # Identify objects from the preserve list that are present in the library.
     objects_to_extract = [obj for obj in keep if obj in all_objects]
     if not objects_to_extract:
         print("None of the specified object files were found in the library.")
         sys.exit(1)
 
-    # Use a temporary directory to extract objects.
+    # Use a temporary directory to extract and process objects.
     with tempfile.TemporaryDirectory() as tmpdir:
         print(f"Extracting objects to temporary directory: {tmpdir}")
         extract_objects(lib, objects_to_extract, tmpdir)
-        new_lib_path = os.path.relpath('libv5rt.a')
+        print("Stripping .ARM.attributes section from extracted objects")
+        strip_arm_attributes(tmpdir, objects_to_extract)
+        new_lib_path = os.path.relpath(os.path.basename(lib))
         print(f"Creating new library: {new_lib_path}")
         create_new_library(new_lib_path, objects_to_extract, tmpdir)
-
-    print("New library creation complete.")
 
 
 def main():

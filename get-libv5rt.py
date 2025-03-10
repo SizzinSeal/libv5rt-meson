@@ -178,10 +178,6 @@ def patch_lib(lib, keep):
         print("None of the specified object files were found in the library.")
         sys.exit(1)
 
-    print(f"Objects to extract from {lib}:")
-    for obj in objects_to_extract:
-        print(f"  - {obj}")
-
     # Use a temporary directory to extract objects.
     with tempfile.TemporaryDirectory() as tmpdir:
         print(f"Extracting objects to temporary directory: {tmpdir}")
@@ -231,6 +227,7 @@ def main():
         sys.exit(1)
     
     # patch headers
+    print("patching headers")
     try:
         os.makedirs(name="include", exist_ok=True)
     except:

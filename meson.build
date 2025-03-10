@@ -30,4 +30,6 @@ get_v5 = custom_target(
   command: [python, '@INPUT@', version, hash, keep_files, keep_objects]
 )
 
-static_library('v5', get_v5)
+v5_dep = declare_dependency(
+  sources: get_v5
+)

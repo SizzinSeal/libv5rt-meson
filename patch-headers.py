@@ -7,6 +7,18 @@ def patch_header(input_file, output_file):
     with open(input_file, 'r') as f:
         content = f.read()
     
+    # Modify #include directives to include _patched before the extension
+    # Only modify if the file name starts with "v5_"
+    include_pattern = re.compile(r'(#include\s+")([^"]+)(")')
+    def include_replacer(match):
+        filename = match.group(2)
+        if not filename.startswith("v5_"):
+            return match.group(0)
+        base, ext = os.path.splitext(filename)
+        return f'{match.group(1)}{base}_patched{ext}{match.group(3)}'
+    
+    content = include_pattern.sub(include_replacer, content)
+    
     # Regular expression to find function declarations/definitions
     # This regex looks for closing parenthesis of function parameters followed by attributes and termination
     pattern = re.compile(
@@ -36,7 +48,7 @@ def patch_header(input_file, output_file):
         
         return new_part
     
-    # Substitute all occurrences
+    # Substitute all occurrences for function declarations/definitions
     modified_content = pattern.sub(replacer, content)
     
     # Write the output file

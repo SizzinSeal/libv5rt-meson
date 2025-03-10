@@ -6,9 +6,6 @@ import zipfile
 import hashlib
 import re
 import subprocess
-import subprocess
-import sys
-import os
 import tempfile
 
 def download_zip(file_name):

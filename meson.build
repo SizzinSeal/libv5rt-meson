@@ -5,15 +5,7 @@ project('v5', 'c',
 version = 'V5_20240802_15_00_00'
 hash = '51fc8695402dd39d5713d20bda5d23699e85913d595e47cd550112ec290730a2'
 
-keep_files = [
-  'libv5rt.a',
-  'v5_api.h',
-  'v5_apitypes.h',
-  'v5_apiuser.h',
-  'v5_color.h'
-]
-
-keep_objects = [
+keep_object_files = [
   'v5_util.c.obj',
   'v5_apijump.c.obj',
   'v5_apiuser.c.obj',
@@ -23,19 +15,41 @@ keep_objects = [
 
 python = find_program('python3')
 
-get_v5 = custom_target(
-  'get-v5',
+libv5rt = custom_target(
+  'libv5rt',
   input: 'get-libv5rt.py',
-  output: keep_files,
-  command: [python, '@INPUT@', version, hash, keep_files, keep_objects]
+  output: [
+    'libv5rt.a',
+    'v5_api.h',
+    'v5_apitypes.h',
+    'v5_apiuser.h',
+    'v5_color.h'
+  ],
+  command: [python, '@INPUT@', version, hash]
 )
 
-libv5 = static_library(
-  'v5',
-  sources: get_v5,
+patch_headers = custom_target(
+  'patch-headers',
+  input: libv5rt,
+  output: [
+    'v5_api_patched.h',
+    'v5_apitypes_patched.h',
+    'v5_apiuser_patched.h',
+    'v5_color_patched.h',
+  ],
+  command: [python, 'patch-headers.py', '@INPUT@']
+)
+
+patch_libv5rt = custom_target(
+  'patch-libv5rt',
+  input: [
+    'patch-libv5rt.py',
+  ],
+  output: 'libv5.a',
+  depends: libv5rt,
+  command: [python, '@INPUT@', keep_object_files]
 )
 
 v5_dep = declare_dependency(
-  link_with: libv5,
-  sources: get_v5
+  sources: [patch_libv5rt, patch_headers]
 )

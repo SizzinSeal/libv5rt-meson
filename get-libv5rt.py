@@ -235,13 +235,8 @@ def main():
     
     # patch headers
     print("patching headers")
-    try:
-        os.makedirs(name="include", exist_ok=True)
-    except:
-        print("failed to path header files: could not create include directory")
-        sys.exit(1)
     for header in headers:
-        patch_header(header, os.path.join("include", os.path.basename(header)))
+        patch_header(header, os.path.relpath(os.path.basename(header)))
     
     # patch library
     patch_lib(os.path.join(path_prefix, 'libv5rt.a'), object_files)

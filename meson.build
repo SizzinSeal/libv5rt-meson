@@ -1,4 +1,4 @@
-project('v5rt', 'c',
+project('v5', 'c',
     version: '1.0',
     default_options: ['warning_level=3'])
 
@@ -23,11 +23,11 @@ keep_objects = [
 
 python = find_program('python3')
 
-custom_target(
-  'v5rt',
+gen_libv5rt = custom_target(
+  'gen-v5rt',
   input: 'get-libv5rt.py',
   output: keep_files,
-  install: true,
-  install_dir: 'subdir',
   command: [python, '@INPUT@', version, hash, keep_files, keep_objects]
 )
+
+static_library('v5', gen_libv5rt)

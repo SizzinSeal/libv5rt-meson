@@ -47,7 +47,7 @@ strip_libv5rt = custom_target(
   input: 'libv5rt-strip-options.txt',
   output: 'libv5rt-stripped.a',
   depends: libv5rt,
-  command: [strip, '../@OUTDIR@/libv5rt.a', '@@INPUT@', '-o', '../@OUTDIR@/libv5rt-stripped.a']
+  command: [strip, '../@OUTDIR@/libv5rt.a', '@@INPUT@', '-o', '../@OUTDIR@/libv5rt-stripped.a', '-o', 'libv5rt-stripped.a']
 )
 
 patch_libv5rt = custom_target(

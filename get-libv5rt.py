@@ -131,8 +131,7 @@ def main():
     keep_files = sys.argv[3:-1]
     # get output directory and current directory
     out_dir = os.path.join("..", sys.argv[-1])
-    current_dir = os.getcwd()
-    out_dirs = [out_dir, current_dir]
+    out_dirs = [out_dir, sys.argv[-1]]
     
     # download the zip
     zip = download_zip(version)

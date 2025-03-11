@@ -45,18 +45,10 @@ patch_headers = custom_target(
 
 strip_libv5rt = custom_target(
   'strip-libv5rt',
-  input: 'libv5rt-strip-options.txt',
+  input: ['libv5rt.a','libv5rt-strip-options.txt'],
   output: 'libv5rt-stripped.a',
   depends: libv5rt,
-  command: [
-    python,
-    files('strip_wrapper.py'),
-    strip,
-    meson.current_build_dir() / '@OUTDIR@' / 'libv5rt.a',  # Input library
-    '@INPUT@',   # Options file
-    '@OUTPUT@',  # First output (builddir/@OUTDIR@/libv5rt-stripped.a)
-    meson.current_build_dir() / 'libv5rt-stripped.a'  # Second output
-  ]
+  command: [ python, files('strip_wrapper.py'), strip, '@INPUT0@', '@INPUT1@', '@OUTPUT@', '@OUTDIR@', ]
 )
 
 patch_libv5rt = custom_target(

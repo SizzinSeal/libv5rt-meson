@@ -1,0 +1,8 @@
+-N open
+-N _fstat
+-N fcntl
+-N lseek
+-N read
+-N write
+-N isatty
+-R .ARM.attributes

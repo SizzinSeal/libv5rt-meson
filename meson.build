@@ -53,10 +53,10 @@ strip_options = [
 
 strip_libv5rt = custom_target(
   'strip-libv5rt',
-  input: 'strip-libv5rt.py',
+  input: ['libv5rt-strip-options.txt'],
   output: 'libv5rt-stripped.a',
   depends: libv5rt,
-  command: [python, '@INPUT@', strip_options, 'libv5rt.a', '@OUTDIR@']
+  command: ['arm-none-eabi-strip', '../@OUTDIR@/libv5rt.a', '@@INPUT@', '-o', '../@OUTDIR@/libv5rt-stripped.a']
 )
 
 patch_libv5rt = custom_target(

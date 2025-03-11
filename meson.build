@@ -45,10 +45,10 @@ patch_headers = custom_target(
 
 strip_libv5rt = custom_target(
   'strip-libv5rt',
-  input: ['libv5rt.a','libv5rt-strip-options.txt'],
+  input: 'libv5rt-strip-options.txt',
   output: 'libv5rt-stripped.a',
   depends: libv5rt,
-  command: [ python, files('strip_wrapper.py'), strip, '@INPUT0@', '@INPUT1@', '@OUTPUT@', '@OUTDIR@', ]
+  command: [ python, files('strip_wrapper.py'), strip, 'libv5rt.a', '@INPUT1@', '@OUTPUT@', '@OUTDIR@', ]
 )
 
 patch_libv5rt = custom_target(

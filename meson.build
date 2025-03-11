@@ -14,6 +14,7 @@ keep_object_files = [
 ]
 
 python = find_program('python3')
+strip = find_program('arm-none-eabi-strip')
 
 libv5rt = custom_target(
   'libv5rt',
@@ -37,15 +38,16 @@ patch_headers = custom_target(
     'v5_apiuser_patched.h',
     'v5_color_patched.h',
   ],
-  command: [python, '@INPUT0@', '@INPUT@', '@OUTDIR@']
+  command: [python, '@INPUT0@', '@INPUT@', '@OUTDIR@'],
+  build_by_default: true,
 )
 
 strip_libv5rt = custom_target(
   'strip-libv5rt',
-  input: ['libv5rt-strip-options.txt'],
+  input: 'libv5rt-strip-options.txt',
   output: 'libv5rt-stripped.a',
   depends: libv5rt,
-  command: ['arm-none-eabi-strip', '../@OUTDIR@/libv5rt.a', '@@INPUT@', '-o', '../@OUTDIR@/libv5rt-stripped.a']
+  command: [strip, '../@OUTDIR@/libv5rt.a', '@@INPUT@', '-o', '../@OUTDIR@/libv5rt-stripped.a']
 )
 
 patch_libv5rt = custom_target(
@@ -55,7 +57,8 @@ patch_libv5rt = custom_target(
   ],
   output: 'libv5.a',
   depends: strip_libv5rt,
-  command: [python, '@INPUT@', keep_object_files, '@OUTDIR@']
+  command: [python, '@INPUT@', keep_object_files, '@OUTDIR@'],
+  build_by_default: true,
 )
 
 v5_lib_dep = declare_dependency(

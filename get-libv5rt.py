@@ -57,12 +57,8 @@ def calculate_sha256(filename):
         print(f"An unexpected error occurred: {str(e)}")
         return None
 
-import os
-import shutil
-import tempfile
-import zipfile
 
-def extract_zip(zip_path, keep_files, out_dir):
+def extract_zip(zip_path, keep_files, out_dirs):
     # Check if the zip file exists
     if not os.path.exists(zip_path):
         print(f"Error: The file '{zip_path}' does not exist.")
@@ -78,31 +74,32 @@ def extract_zip(zip_path, keep_files, out_dir):
             vexv5_dir = os.path.join(tmpdir, extraction_dir, "vexv5")
             include_dir = os.path.join(vexv5_dir, "include")
             
-            # Ensure the output directory exists
-            os.makedirs(out_dir, exist_ok=True)
-            
-            # Copy each specified file from either vexv5 or include directories
+            # Copy each specified file to all output directories
             for file_name in keep_files:
                 file_name = os.path.basename(file_name)
                 found = False
                 # Check in the vexv5 directory
                 src_path = os.path.join(vexv5_dir, file_name)
                 if os.path.exists(src_path):
-                    dst_path = os.path.join(out_dir, file_name)
-                    if os.path.isfile(src_path):
-                        shutil.copy(src_path, dst_path)
-                    else:
-                        shutil.copytree(src_path, dst_path, dirs_exist_ok=True)
-                    found = True
-                else:
-                    # Check in the include directory
-                    src_path = os.path.join(include_dir, file_name)
-                    if os.path.exists(src_path):
+                    for out_dir in out_dirs:
+                        os.makedirs(out_dir, exist_ok=True)
                         dst_path = os.path.join(out_dir, file_name)
                         if os.path.isfile(src_path):
                             shutil.copy(src_path, dst_path)
                         else:
                             shutil.copytree(src_path, dst_path, dirs_exist_ok=True)
+                    found = True
+                else:
+                    # Check in the include directory
+                    src_path = os.path.join(include_dir, file_name)
+                    if os.path.exists(src_path):
+                        for out_dir in out_dirs:
+                            os.makedirs(out_dir, exist_ok=True)
+                            dst_path = os.path.join(out_dir, file_name)
+                            if os.path.isfile(src_path):
+                                shutil.copy(src_path, dst_path)
+                            else:
+                                shutil.copytree(src_path, dst_path, dirs_exist_ok=True)
                         found = True
                 if not found:
                     print(f"Error: File '{file_name}' not found in the extracted contents.")
@@ -132,8 +129,10 @@ def main():
 
     # get files that need to be kept
     keep_files = sys.argv[3:-1]
-    # get output directory
+    # get output directory and current directory
     out_dir = os.path.join("..", sys.argv[-1])
+    current_dir = os.getcwd()
+    out_dirs = [out_dir, current_dir]
     
     # download the zip
     zip = download_zip(version)
@@ -147,7 +146,7 @@ def main():
         sys.exit(1)
 
     # extract the zip
-    if extract_zip(zip, keep_files, out_dir) == False:
+    if extract_zip(zip, keep_files, out_dirs) == False:
         sys.exit(1)
     
     # we're done

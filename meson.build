@@ -40,17 +40,6 @@ patch_headers = custom_target(
   command: [python, '@INPUT0@', '@INPUT@', '@OUTDIR@']
 )
 
-strip_options = [
-  '-N open',
-  '-N _fstat',
-  '-N fcntl',
-  '-N lseek',
-  '-N read',
-  '-N write',
-  '-N isatty',
-  '-R .ARM.attributes',
-]
-
 strip_libv5rt = custom_target(
   'strip-libv5rt',
   input: ['libv5rt-strip-options.txt'],
@@ -69,6 +58,10 @@ patch_libv5rt = custom_target(
   command: [python, '@INPUT@', keep_object_files, '@OUTDIR@']
 )
 
-v5_dep = declare_dependency(
-  sources: [patch_headers, patch_libv5rt]
+v5_lib_dep = declare_dependency(
+  sources: patch_libv5rt
+)
+
+v5_header_dep = declare_dependency(
+  sources: patch_headers
 )

@@ -1,7 +1,8 @@
 project('v5', 'c',
     version: '1.0',
-    default_options: ['warning_level=3'])
+)
 
+# this is 
 version = 'V5_20240802_15_00_00'
 hash = '51fc8695402dd39d5713d20bda5d23699e85913d595e47cd550112ec290730a2'
 
@@ -47,7 +48,15 @@ strip_libv5rt = custom_target(
   input: 'libv5rt-strip-options.txt',
   output: 'libv5rt-stripped.a',
   depends: libv5rt,
-  command: [strip, '../@OUTDIR@/libv5rt.a', '@@INPUT@', '-o', '../@OUTDIR@/libv5rt-stripped.a', '-o', 'libv5rt-stripped.a']
+  command: [
+    python,
+    files('strip_wrapper.py'),
+    strip,
+    meson.current_build_dir() / '@OUTDIR@' / 'libv5rt.a',  # Input library
+    '@INPUT@',   # Options file
+    '@OUTPUT@',  # First output (builddir/@OUTDIR@/libv5rt-stripped.a)
+    meson.current_build_dir() / 'libv5rt-stripped.a'  # Second output
+  ]
 )
 
 patch_libv5rt = custom_target(

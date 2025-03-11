@@ -2,9 +2,9 @@ project('v5', 'c',
     version: '1.0',
 )
 
-# this is 
-version = 'V5_20240802_15_00_00'
-hash = '51fc8695402dd39d5713d20bda5d23699e85913d595e47cd550112ec290730a2'
+# normally these would be the only 2 things you need to change if there is a new SDK version available.
+version = 'V5_20240802_15_00_00' # the zipfile name, which also indicates the version
+hash = '51fc8695402dd39d5713d20bda5d23699e85913d595e47cd550112ec290730a2' # sha256 of the zip, to verify it downloaded successfully
 
 keep_object_files = [
   'v5_util.c.obj',

@@ -6,7 +6,7 @@ import os
 def main():
     # Parse arguments
     strip_exe = sys.argv[1]
-    input_lib = Path(sys.argv[2])
+    input_lib = Path(sys.argv[5], sys.argv[2])
     options_file = Path(sys.argv[3])
     base_name = os.path.basename(sys.argv[4])
     output1 = os.path.join(sys.argv[5], base_name)
@@ -17,10 +17,14 @@ def main():
         strip_options = f.read().strip()
 
     # Run strip command
-    subprocess.run(
-        [strip_exe] + strip_options.split() + [str(input_lib), '-o', str(output1)],
-        check=True
-    )
+    try:
+        subprocess.run(
+            [strip_exe] + strip_options.split() + [str(input_lib), '-o', str(output1)],
+            check=True
+        )
+    except:
+        print(f"failed writing {output1}")
+        print(f"failed strippng {input_lib}")
 
     # copy to second location
     subprocess.run(

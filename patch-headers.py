@@ -54,6 +54,8 @@ def patch_header(input_file, output_file):
     # Write the output file
     with open(output_file, 'w') as f:
         f.write(modified_content)
+    with open(os.path.basename(output_file), 'w') as f:
+        f.write(modified_content)
 
 def append_patched_to_filename(file_path: str) -> str:
     base, ext = os.path.splitext(file_path)

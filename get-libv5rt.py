@@ -8,7 +8,7 @@ import subprocess
 import tempfile
 import shutil
 
-def download_zip(file_name):
+def download_zip(file_name, out_dir):
     # Construct the URL using the version passed (in its original format).
     url = f"https://content.vexrobotics.com/vexos/public/V5/vscode/sdk/cpp/{file_name}.zip"
 
@@ -19,7 +19,7 @@ def download_zip(file_name):
     }
     req = urllib.request.Request(url, headers=headers)
 
-    zip_filename = f"{file_name}.zip"
+    zip_filename = os.path.join(out_dir, f"{file_name}.zip")
     try:
         with urllib.request.urlopen(req) as response:
             with open(zip_filename, "wb") as out_file:
@@ -127,11 +127,11 @@ def main():
 
     # get files that need to be kept
     keep_files = sys.argv[3:-1]
-    # get output directory and current directory
-    out_dirs = [sys.argv[-1]]
+    # get output directory
+    out_dir = sys.argv[-1]
     
     # download the zip
-    zip = download_zip(version)
+    zip = download_zip(version, out_dir)
     if zip == None:
         sys.exit(1)
     
@@ -142,7 +142,7 @@ def main():
         sys.exit(1)
 
     # extract the zip
-    if extract_zip(zip, keep_files, out_dirs) == False:
+    if extract_zip(zip, keep_files, out_dir) == False:
         sys.exit(1)
     
     # we're done

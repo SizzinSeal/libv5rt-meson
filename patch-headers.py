@@ -52,8 +52,9 @@ def patch_header(input_file, output_file):
     modified_content = pattern.sub(replacer, content)
     
     # Write the output file
-    if os.path.os.path.dirname(output_file) != '':
-        os.makedirs(os.path.relpath(os.path.os.path.dirname(output_file)), exist_ok=True)
+    dir_name = os.path.dirname(output_file)
+    if dir_name != '':
+        os.makedirs(dir_name, exist_ok=True)
     with open(output_file, 'w') as f:
         f.write(modified_content)
 

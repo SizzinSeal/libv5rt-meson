@@ -3,10 +3,11 @@ import os
 import subprocess
 import tempfile
 
-def strip_object_files(keep, out_dir):
-    lib = os.path.join("..", out_dir, "libv5rt-stripped.a")
-    ar = 'arm-none-eabi-ar'
-
+def strip_object_files(lib, ar, keep, output):
+    print(f"lib: {lib}")
+    print(f"ar: {ar}")
+    print(f"keep: {keep}")
+    print(f"output: {output}")
     def list_objects(library):
         """Return a list of object files in the static library using 'ar t'."""
         try:
@@ -59,18 +60,21 @@ def strip_object_files(keep, out_dir):
     with tempfile.TemporaryDirectory() as tmpdir:
         print(f"Extracting objects to temporary directory: {tmpdir}")
         extract_objects(lib, objects_to_extract, tmpdir)
-        new_lib_path = os.path.join(out_dir, "libv5.a")
-        print(f"Creating new library: {new_lib_path}")
-        create_new_library(new_lib_path, objects_to_extract, tmpdir)
+        print(f"Creating new library: {output}")
+        create_new_library(output, objects_to_extract, tmpdir)
 
 def main():
-    # get files
-    files = sys.argv[1:-1]
-    # get output directory
-    out_dir = sys.argv[-1]
+    # get library to patch
+    input = sys.argv[1]
+    # get ar executable
+    ar = sys.argv[2]
+    # get object files to remove
+    files = sys.argv[3:-1]
+    # get output file
+    output = sys.argv[-1]
 
     # create library
-    strip_object_files(files, out_dir)
+    strip_object_files(ar, input, files, output)
     
     # we're done
     sys.exit(0)

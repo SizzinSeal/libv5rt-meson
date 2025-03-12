@@ -16,6 +16,7 @@ keep_object_files = [
 
 python = find_program('python3')
 strip = find_program('arm-none-eabi-strip')
+ar = find_program('arm-none-eabi-ar')
 
 libv5rt = custom_target(
   'libv5rt',
@@ -45,20 +46,22 @@ patch_headers = custom_target(
 
 strip_libv5rt = custom_target(
   'strip-libv5rt',
-  input: 'libv5rt-strip-options.txt',
+  input: [
+    libv5rt[0], # libv5rt.a
+    'libv5rt-strip-options.txt'
+  ],
   output: 'libv5rt-stripped.a',
-  depends: libv5rt,
-  command: [ python, files('strip_wrapper.py'), strip, 'libv5rt.a', '@INPUT@', '@OUTPUT@', '@OUTDIR@', ]
+  command: [ strip, '@INPUT0@', '@@INPUT1@', '-o', '@OUTPUT@']
 )
 
 patch_libv5rt = custom_target(
   'patch-libv5rt',
   input: [
     'patch-libv5rt.py',
+    strip_libv5rt,
   ],
   output: 'libv5.a',
-  depends: strip_libv5rt,
-  command: [python, '@INPUT@', keep_object_files, '@OUTDIR@'],
+  command: [python, '@INPUT0@', ar, '@INPUT1@', keep_object_files, '@OUTPUT@'],
   build_by_default: true,
 )
 

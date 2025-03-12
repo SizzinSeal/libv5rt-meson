@@ -52,7 +52,8 @@ def patch_header(input_file, output_file):
     modified_content = pattern.sub(replacer, content)
     
     # Write the output file
-    os.makedirs(os.path. os.path.dirname(output_file), exist_ok=True)
+    if os.path.os.path.dirname(output_file) != '':
+        os.makedirs(os.path.relpath(os.path.os.path.dirname(output_file)), exist_ok=True)
     with open(output_file, 'w') as f:
         f.write(modified_content)
 
@@ -70,7 +71,7 @@ def main():
     print("patching headers")
     for file in files:
         name = os.path.join(out_dir, os.path.basename(file))
-        new_name = os.path.join(out_dir, 'include', os.path.basename(append_patched_to_filename(name)))
+        new_name = os.path.basename(append_patched_to_filename(name))
         patch_header(name, new_name)
     
     # we're done

@@ -4,10 +4,6 @@ import subprocess
 import tempfile
 
 def strip_object_files(lib, ar, keep, output):
-    print(f"lib: {lib}")
-    print(f"ar: {ar}")
-    print(f"keep: {keep}")
-    print(f"output: {output}")
     def list_objects(library):
         """Return a list of object files in the static library using 'ar t'."""
         try:
@@ -58,9 +54,7 @@ def strip_object_files(lib, ar, keep, output):
 
     # Use a temporary directory to extract and process objects.
     with tempfile.TemporaryDirectory() as tmpdir:
-        print(f"Extracting objects to temporary directory: {tmpdir}")
         extract_objects(lib, objects_to_extract, tmpdir)
-        print(f"Creating new library: {output}")
         create_new_library(output, objects_to_extract, tmpdir)
 
 def main():

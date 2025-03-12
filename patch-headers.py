@@ -71,7 +71,7 @@ def main():
     # patch headers
     for file in files:
         name = os.path.join(out_dir, os.path.basename(file))
-        new_name = os.path.basename(append_patched_to_filename(name))
+        new_name = append_patched_to_filename(name)
         patch_header(name, new_name)
     
     # we're done

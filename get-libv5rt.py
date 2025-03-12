@@ -11,7 +11,6 @@ import shutil
 def download_zip(file_name):
     # Construct the URL using the version passed (in its original format).
     url = f"https://content.vexrobotics.com/vexos/public/V5/vscode/sdk/cpp/{file_name}.zip"
-    print(f"Downloading from: {url}")
 
     headers = {
         "User-Agent": ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -105,7 +104,6 @@ def extract_zip(zip_path, keep_files, out_dirs):
                     print(f"Error: File '{file_name}' not found in the extracted contents.")
                     return False
             
-            print("libv5rt successfully extracted")
             return True
 
     except zipfile.BadZipFile:

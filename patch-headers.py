@@ -69,7 +69,6 @@ def main():
     out_dir = sys.argv[-1]
 
     # patch headers
-    print("patching headers")
     for file in files:
         name = os.path.join(out_dir, os.path.basename(file))
         new_name = os.path.basename(append_patched_to_filename(name))
